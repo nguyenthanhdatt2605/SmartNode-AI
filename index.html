@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartNode Control Center</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+</head>
+<body class="dark-mode">
+
+    <div id="login-screen" class="overlay">
+        <div class="glass-card login-box bounce-in">
+            <div class="brand-icon"><i class="fa-solid fa-microchip"></i></div>
+            <h2>SmartNode AI</h2>
+            <p class="login-subtitle">Hệ thống điều khiển chiếu sáng thông minh</p>
+            <div class="input-field">
+                <i class="fa-solid fa-envelope"></i>
+                <input id="email" type="email" placeholder="Email quản trị">
+            </div>
+            <div class="input-field">
+                <i class="fa-solid fa-lock"></i>
+                <input id="pass" type="password" placeholder="Mật khẩu">
+            </div>
+            <button class="btn-primary-glow" onclick="authLogin()">VÀO HỆ THỐNG</button>
+            <div class="login-footer"><small>© 2026 SmartNode IoT System</small></div>
+        </div>
+    </div>
+
+    <div id="app-container" style="display:none">
+        
+        <aside class="sidebar">
+            <div class="logo">SMART<span>NODE</span></div>
+            <nav id="main-nav">
+                <div class="nav-item active" data-tab="dashboard" onclick="showTab('dashboard')"><i class="fa-solid fa-house-signal"></i> Hệ thống</div>
+                <div class="nav-item" data-tab="live-data" onclick="showTab('live-data')"><i class="fa-solid fa-bolt"></i> Energy Details</div>
+                <div class="nav-item" data-tab="device-settings" onclick="showTab('device-settings')"><i class="fa-solid fa-tower-broadcast"></i> Radar Presence</div>
+                <div class="nav-item" data-tab="data-mgmt" onclick="showTab('data-mgmt')"><i class="fa-solid fa-chart-pie"></i> Data Management</div>
+                <div class="nav-item logout" onclick="authLogout()"><i class="fa-solid fa-power-off"></i> Thoát</div>
+            </nav>
+        </aside>
+
+        <main class="content">
+            
+            <section id="dashboard" class="tab-content active">
+                <div class="tab-inner hero-control">
+                    
+                    <div class="cyber-switch-container">
+                        <label class="cyber-switch">
+                            <input type="checkbox" id="check-auto" onchange="handleAutoMode()">
+                            <span class="cyber-slider"><i class="fa-solid fa-robot knob-icon"></i></span>
+                        </label>
+                    </div>
+
+                    <div class="dashboard-brightness glass-card">
+                        <h3 class="bright-title"><i class="fa-solid fa-sun pulse-icon"></i> ĐỘ SÁNG HỆ THỐNG</h3>
+                        <div class="main-range-wrapper">
+                            <input type="range" id="range-dosang" min="0" max="100" value="0">
+                            <div class="percentage-display"><span id="txt-dosang">0</span><small>%</small></div>
+                        </div>
+                    </div>
+
+                    <div class="mode-status-container">
+                        <div class="mode-text-content">
+                            <h1 id="mode-text">CHẾ ĐỘ THỦ CÔNG</h1>
+                            <p id="mode-desc">Kéo thanh trượt để điều chỉnh độ sáng.</p>
+                        </div>
+                        <div class="mode-widgets">
+                            <div class="widget-item clock-bg" onclick="openTimer()" title="Nhấn để hẹn giờ">
+                                <i class="fa-regular fa-clock"></i>
+                                <span id="mini-clock">00:00</span>
+                            </div>
+                            <button id="btn-voice" class="widget-item voice-circle-btn" onclick="startVoiceRecognition()" title="Điều khiển bằng giọng nói">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section id="live-data" class="tab-content">
+                <div class="tab-inner">
+                    <div class="center-header"><h2>⚡ Live Energy Data</h2></div>
+                    <div class="energy-stats-row">
+                        <div class="glass-card stat-card float-anim">
+                            <i class="fa-solid fa-bolt-lightning"></i>
+                            <div class="stat-info"><small>DÒNG ĐIỆN</small><p><b id="val-cur">0.0000</b> <span>A</span></p></div>
+                        </div>
+                        <div class="glass-card stat-card float-anim" style="animation-delay: 0.2s;">
+                            <i class="fa-solid fa-battery-three-quarters"></i>
+                            <div class="stat-info"><small>TIÊU THỤ</small><p><b id="val-wh">0.000</b> <span>Wh</span></p></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="device-settings" class="tab-content">
+                <div class="tab-inner">
+                    <div class="center-header"><h2>📡 Radar Presence Monitor</h2></div>
+                    <div class="radar-container">
+                        <div class="glass-card presence-main-card">
+                            <div class="radar-scanner"><div class="scanner-line"></div><i class="fa-solid fa-person-rays"></i></div>
+                            <div id="presence-badge" class="presence-status">ĐANG QUÉT...</div>
+                        </div>
+                        <div class="radar-stats-grid">
+                            <div class="glass-card distance-card">
+                                <i class="fa-solid fa-stopwatch-20"></i>
+                                <div class="dist-info"><small>KHOẢNG CÁCH TĨNH</small><p><span id="val-static">0</span> <small>cm</small></p></div>
+                            </div>
+                            <div class="glass-card distance-card">
+                                <i class="fa-solid fa-person-walking"></i>
+                                <div class="dist-info"><small>KHOẢNG CÁCH ĐỘNG</small><p><span id="val-moving">0</span> <small>cm</small></p></div>
+                            </div>
+                        </div>
+                        <div class="glass-card energy-radar-card">
+                            <div class="bar-header"><span>Mức độ vận động (Energy)</span><span id="txt-move-energy">0%</span></div>
+                            <div class="progress-bar-bg"><div id="bar-move" class="progress-bar-fill"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="data-mgmt" class="tab-content">
+                <div class="tab-inner">
+                    <div class="center-header"><h2>📊 Data Statistics</h2></div>
+                    <div class="info-grid">
+                        <div class="glass-card info-box"><i class="fa-solid fa-sun-plant-wilt"></i><h3>Lux</h3><p id="val-lux">0</p></div>
+                        <div class="glass-card info-box"><i class="fa-solid fa-lightbulb"></i><h3>Lamp</h3><p id="val-lamp">0%</p></div>
+                        <div class="glass-card info-box"><i class="fa-solid fa-plug"></i><h3>Voltage</h3><p id="val-vol">0V</p></div>
+                        <div class="glass-card info-box"><i class="fa-solid fa-gauge-high"></i><h3>Power</h3><p id="val-power">0W</p></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="timer-modal" class="overlay" style="display:none; z-index: 10000;">
+        <div class="glass-card login-box bounce-in">
+            <div class="brand-icon"><i class="fa-solid fa-stopwatch-20"></i></div>
+            <h3>Thiết lập Hẹn giờ</h3>
+            <p style="color:#aaa; margin-bottom:20px;">Hệ thống sẽ chuyển đổi trạng thái sau số phút bạn chọn.</p>
+            <div class="input-field">
+                <input type="number" id="timer-input" placeholder="Nhập số phút (VD: 10)">
+            </div>
+            <div style="display: flex; gap: 15px; margin-top: 25px;">
+                <button class="btn-primary-glow" onclick="startTimerProcess()">BẮT ĐẦU</button>
+                <button class="btn-primary-glow" style="background: rgba(255,255,255,0.1); color: #fff; box-shadow:none;" onclick="closeTimer()">HỦY</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

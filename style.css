@@ -5,47 +5,48 @@
     --sidebar-bg: #000;
 }
 
-/* Reset Layout & Fix Scrollbar vệt trắng */
 *, *::before, *::after { box-sizing: border-box; }
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
-body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: white; overflow: hidden; }
+body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: white; overflow-x: hidden; }
 
-/* Thẻ Glassmorphism dùng chung */
+/* Thẻ Glassmorphism */
 .glass-card { background: var(--card); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; }
 
-/* Hiệu ứng mượt mà */
+/* Animations */
 @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pulseGlow { 0% { box-shadow: 0 0 10px var(--primary); } 50% { box-shadow: 0 0 30px var(--primary); } 100% { box-shadow: 0 0 10px var(--primary); } }
 .bounce-in { animation: fadeIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
 .float-anim { animation: float 4s ease-in-out infinite; }
 @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
 
-/* SIDEBAR */
-.sidebar { width: 260px; height: 100vh; position: fixed; background: var(--sidebar-bg); border-right: 1px solid #222; z-index: 100; top:0; left:0;}
-.logo { padding: 30px; font-size: 1.5rem; font-weight: 800; color: var(--primary); text-align: center; letter-spacing: 2px;}
+/* SIDEBAR MẶC ĐỊNH (DESKTOP) */
+.sidebar { width: 260px; height: 100vh; position: fixed; background: var(--sidebar-bg); border-right: 1px solid #222; z-index: 100; top:0; left:0; transition: transform 0.3s ease; }
+.sidebar-top { display: flex; justify-content: space-between; align-items: center; padding: 30px 20px; }
+.logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-align: center; letter-spacing: 2px;}
 .logo span { color: white; }
+.close-sidebar { display: none; font-size: 1.5rem; color: #fff; cursor: pointer; }
 .nav-item { padding: 18px 30px; cursor: pointer; color: #888; transition: 0.3s; display: flex; gap: 15px; align-items: center; border-left: 3px solid transparent; }
 .nav-item.active, .nav-item:hover { color: var(--primary); background: rgba(0,242,255,0.05); border-left: 3px solid var(--primary); }
 .nav-item.logout { position: absolute; bottom: 20px; width: 100%; color: #ff4d4d; }
 
-/* CONTENT AREA & CĂN GIỮA */
-.content { margin-left: 260px; height: 100vh; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; display: flex; flex-direction: column;}
+/* HEADER MOBILE & OVERLAY (Ẩn trên Desktop) */
+.mobile-header { display: none; }
+.sidebar-overlay { display: none; }
+
+/* CONTENT AREA */
+.content { margin-left: 260px; height: 100vh; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; display: flex; flex-direction: column; transition: margin 0.3s ease;}
 .tab-content { display: none; width: 100%; min-height: 100vh; padding: 40px; }
 .tab-content.active { display: flex; justify-content: center; align-items: center; animation: fadeIn 0.4s ease-out; }
-
-/* Lớp bọc giới hạn độ rộng để Card không bị méo, CĂN GIỮA TẤT CẢ */
 .tab-inner { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 30px; align-items: center;}
 .center-header { text-align: center; width: 100%; margin-bottom: 10px;}
 .center-header h2 { color: var(--primary); display: inline-block; border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin: 0;}
 
-/* TAB 1: DASHBOARD (Trục dọc) */
-.hero-control { gap: 40px; }
-
-/* Công tắc Cyber Neon */
+/* DASHBOARD */
+.hero-control { align-items: center; justify-content: center; min-height: 80vh; gap: 40px; }
 .cyber-switch-container { margin: 0; }
 .cyber-switch { position: relative; display: inline-block; width: 160px; height: 80px; }
 .cyber-switch input { opacity: 0; width: 0; height: 0; }
@@ -56,7 +57,6 @@ input:checked + .cyber-slider { background-color: rgba(0, 242, 255, 0.1); border
 input:checked + .cyber-slider:before { transform: translateX(80px); background-color: var(--primary); box-shadow: 0 0 20px var(--primary); }
 input:checked + .cyber-slider .knob-icon { transform: translate(42px, -50%); color: #000; }
 
-/* Thanh độ sáng Dashboard */
 .dashboard-brightness { width: 100%; max-width: 500px; text-align: center; padding: 30px 40px !important; }
 .bright-title { font-size: 1.1rem; color: #aaa; letter-spacing: 2px; margin-top: 0; margin-bottom: 25px;}
 .bright-title i { color: #ffd700; margin-right: 5px; animation: pulseGlow 2s infinite alternate;}
@@ -64,30 +64,24 @@ input:checked + .cyber-slider .knob-icon { transform: translate(42px, -50%); col
 input[type=range] { -webkit-appearance:none; width: 100%; background: transparent; }
 input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 15px; background: #1a1a1a; border-radius: 10px; border: 1px solid #333; }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 35px; width: 35px; border-radius: 50%; background: var(--primary); cursor: pointer; margin-top: -11px; box-shadow: 0 0 15px var(--primary); transition: 0.2s; }
-input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 input[type=range]:disabled { opacity: 0.3; cursor: not-allowed; }
-.percentage-display { font-size: 3.5rem; font-weight: 800; color: var(--primary); margin-top: 15px; text-shadow: 0 0 15px rgba(0, 242, 255, 0.3); }
+.percentage-display { font-size: 3.5rem; font-weight: 800; color: var(--primary); margin-top: 10px; text-shadow: 0 0 15px rgba(0, 242, 255, 0.3); }
 
-/* Trạng thái & Tiện ích Dashboard */
 .mode-status-container { display: flex; align-items: center; justify-content: space-between; gap: 30px; background: rgba(0,0,0,0.3); padding: 20px 30px; border-radius: 20px; border: 1px solid #222; width: 100%; max-width: 600px; }
 .mode-text-content { text-align: left; }
 #mode-text { font-size: 1.8rem; margin: 0; color: white; font-weight: 800; letter-spacing: 1px; transition: 0.3s; }
 #mode-desc { color: #888; margin: 5px 0 0 0; font-size: 0.9rem;}
 .mode-widgets { display: flex; align-items: center; gap: 15px; padding-left: 20px; border-left: 2px solid rgba(255, 255, 255, 0.1); }
 .widget-item { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 18px; color: var(--primary); display: flex; align-items: center; gap: 10px; font-family: 'monospace'; font-size: 1.2rem; transition: 0.3s; cursor: pointer;}
-.widget-item:hover { background: rgba(0,242,255,0.1); border-color: var(--primary); transform: translateY(-2px); }
 .voice-circle-btn { width: 50px; height: 50px; border-radius: 50%; justify-content: center; padding: 0; border: none;}
 .voice-active { background: var(--primary) !important; color: black !important; animation: pulseGlow 1s infinite; }
 
-/* CÁC TAB DATA CHI TIẾT */
-/* Tab 2: Energy */
+/* DATA GRIDS */
 .energy-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; max-width: 800px;}
 .stat-card { display: flex; align-items: center; justify-content: center; gap: 20px; padding: 35px 25px !important; }
 .stat-card i { font-size: 2.5rem; color: var(--primary); }
-.stat-info small { color: #888; font-weight: 600; letter-spacing: 1px; }
 .stat-info p { font-size: 2.2rem; margin: 5px 0 0 0; font-weight: bold; color: #fff;}
 
-/* Tab 3: Radar */
 .radar-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 30px; }
 .presence-main-card { padding: 40px !important; text-align: center; }
 .presence-status { font-size: 1.5rem; font-weight: bold; letter-spacing: 2px; margin-top: 20px; color: #666; }
@@ -100,28 +94,70 @@ input[type=range]:disabled { opacity: 0.3; cursor: not-allowed; }
 .progress-bar-bg { width: 100%; height: 12px; background: #111; border-radius: 10px; overflow: hidden; }
 .progress-bar-fill { height: 100%; background: var(--primary); width: 0%; transition: 0.5s; box-shadow: 0 0 10px var(--primary); }
 
-/* Radar Scanner Animation */
 .radar-scanner { width: 120px; height: 120px; margin: 0 auto; border: 3px solid #222; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; background: rgba(0,242,255,0.02); }
 .radar-scanner i { font-size: 3rem; color: #444; }
 .scanner-line { position: absolute; width: 100%; height: 3px; background: var(--primary); top: 50%; box-shadow: 0 0 20px var(--primary); animation: scan 2s infinite linear; }
 @keyframes scan { 0% { transform: translateY(-60px); } 100% { transform: translateY(60px); } }
 
-/* Tab 4: Data Management */
 .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; width: 100%; }
 .info-box { text-align: center; padding: 30px 20px !important; transition: 0.4s; }
 .info-box i { font-size: 2rem; color: #555; margin-bottom: 15px; transition: 0.3s; }
-.info-box h3 { margin: 0; color: #aaa; font-size: 1.1rem;}
 .info-box p { font-size: 1.8rem; font-weight: bold; color: var(--primary); margin: 10px 0 0 0; }
-.info-box:hover { transform: translateY(-10px); border-color: var(--primary); }
-.info-box:hover i { color: var(--primary); }
 
 /* Login & Modals */
 .overlay { height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle, #1a1a1a 0%, #050505 100%); position: fixed; top: 0; left: 0; z-index: 9999; backdrop-filter: blur(5px); }
-.login-box { width: 400px; text-align: center; padding: 40px; }
+.login-box { width: 90%; max-width: 400px; text-align: center; padding: 40px; }
 .brand-icon { font-size: 3.5rem; color: var(--primary); margin-bottom: 20px; filter: drop-shadow(0 0 15px var(--primary)); }
 .input-field { background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; padding: 5px 20px; transition: 0.3s; }
-.input-field:focus-within { border-color: var(--primary); box-shadow: 0 0 15px rgba(0,242,255,0.2); }
 .input-field input { background: transparent; border: none; color: white; padding: 15px 0; width: 100%; outline: none; font-size: 1rem; }
 .btn-primary-glow { width: 100%; padding: 15px; background: var(--primary); border: none; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; color: #000; font-size: 1rem; letter-spacing: 1px;}
-.btn-primary-glow:hover { box-shadow: 0 0 25px var(--primary); transform: translateY(-3px); }
 input[type=number]::-webkit-inner-spin-button { display: none; }
+
+
+/* =========================================================
+   TỐI ƯU HÓA MOBILE ĐIỆN THOẠI (RESPONSIVE WEB DESIGN) 
+   ========================================================= */
+@media (max-width: 850px) {
+    /* Ép lưới Data Management thành 2 cột thay vì 4 cột trên iPad */
+    .info-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    /* Kích hoạt Header Mobile */
+    .mobile-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: rgba(0,0,0,0.9); border-bottom: 1px solid #222; position: fixed; top: 0; width: 100%; z-index: 90; backdrop-filter: blur(10px); }
+    .mobile-header .logo { padding: 0; font-size: 1.3rem; }
+    .menu-toggle { font-size: 1.5rem; color: var(--primary); cursor: pointer; }
+
+    /* Xử lý Sidebar ẩn/hiện trượt ngang */
+    .sidebar { transform: translateX(-100%); width: 280px; }
+    .sidebar.active { transform: translateX(0); box-shadow: 5px 0 25px rgba(0,0,0,0.8); }
+    .sidebar-top { justify-content: space-between; }
+    .close-sidebar { display: block; } /* Hiện nút X đóng menu */
+    
+    /* Màn chắn khi mở menu */
+    .sidebar-overlay.active { display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 99; }
+
+    /* Nội dung đẩy lùi về trái, cách đỉnh 1 đoạn bằng Header */
+    .content { margin-left: 0; padding-top: 60px; }
+    .tab-content { padding: 20px 15px; }
+
+    /* Xếp chồng thẻ thông số thành 1 cột duy nhất để không bị bóp méo */
+    .energy-stats-row, .radar-stats-grid { grid-template-columns: 1fr; }
+    
+    /* Thiết kế lại hộp Trạng thái Dashboard cho điện thoại */
+    .mode-status-container { flex-direction: column; text-align: center; gap: 20px; padding: 25px 20px; }
+    .mode-text-content { text-align: center; }
+    .mode-widgets { padding-left: 0; border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; justify-content: center; width: 100%; }
+    
+    /* Scale nhỏ các icon cho cân đối */
+    .dashboard-brightness { padding: 20px 20px !important; }
+    .percentage-display { font-size: 2.5rem; }
+    .cyber-switch { transform: scale(0.9); } 
+    .stat-card i, .distance-card i { font-size: 2rem; }
+    .stat-info p, .dist-info p { font-size: 1.8rem; }
+}
+
+@media (max-width: 480px) {
+    /* Trên màn hình cực nhỏ như iPhone SE, ép Data Management thành 1 cột */
+    .info-grid { grid-template-columns: 1fr; }
+}

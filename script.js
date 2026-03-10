@@ -11,7 +11,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// --- 2. AUTH & TABS ---
+// --- 2. MENU MOBILE (MỚI) ---
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+    document.querySelector('.sidebar-overlay').classList.toggle('active');
+}
+
+// --- 3. AUTH & TABS ---
 function authLogin() {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('pass').value;
@@ -19,8 +25,8 @@ function authLogin() {
 
     firebase.auth().signInWithEmailAndPassword(email, pass).then(() => {
         document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app-container').style.display = 'block'; // Block the container
-        showTab('dashboard'); // Init tab
+        document.getElementById('app-container').style.display = 'block'; 
+        showTab('dashboard'); 
         startSync();
         initClockSystem();
     }).catch(e => alert("Lỗi đăng nhập: " + e.message));
@@ -33,9 +39,15 @@ function showTab(tabId) {
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
     document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+
+    // Tự động đóng sidebar nếu đang ở chế độ mobile
+    if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('active');
+        document.querySelector('.sidebar-overlay').classList.remove('active');
+    }
 }
 
-// --- 3. CORE LOGIC (AUTO VS MANUAL) ---
+// --- 4. CORE LOGIC (AUTO VS MANUAL) ---
 function handleAutoMode() {
     const isAuto = document.getElementById('check-auto').checked;
     db.ref('Control/dieu_khien').set(isAuto);
@@ -61,7 +73,7 @@ function updateUIForAuto(isAuto) {
     }
 }
 
-// --- 4. HỆ THỐNG THỜI GIAN & HẸN GIỜ ---
+// --- 5. HỆ THỐNG THỜI GIAN & HẸN GIỜ ---
 let masterClock;
 function openTimer() { document.getElementById('timer-modal').style.display = 'flex'; }
 function closeTimer() { document.getElementById('timer-modal').style.display = 'none'; }
@@ -84,7 +96,6 @@ function initClockSystem() {
         masterClock = setInterval(() => {
             const now = Date.now();
             if (deadline > now) {
-                // Đếm ngược
                 const dist = deadline - now;
                 const m = Math.floor(dist / 60000);
                 const s = Math.floor((dist % 60000) / 1000);
@@ -93,7 +104,6 @@ function initClockSystem() {
                 clockBox.style.borderColor = "#ff4d4d";
                 clockBox.style.boxShadow = "0 0 15px rgba(255, 77, 77, 0.3)";
             } else {
-                // Đồng hồ thực
                 const d = new Date();
                 clockSpan.innerText = d.getHours().toString().padStart(2, '0') + ":" + 
                                       d.getMinutes().toString().padStart(2, '0');
@@ -101,7 +111,6 @@ function initClockSystem() {
                 clockBox.style.borderColor = "rgba(255,255,255,0.1)";
                 clockBox.style.boxShadow = "none";
 
-                // Hết giờ -> Tắt
                 if (deadline !== 0 && (now - deadline) < 2000) {
                     db.ref('Control/timer_deadline').set(0);
                     db.ref('Control/dieu_khien').set(false);
@@ -112,7 +121,7 @@ function initClockSystem() {
     });
 }
 
-// --- 5. AI GIỌNG NÓI (HIỂU LỆNH & THỰC THI) ---
+// --- 6. AI GIỌNG NÓI ---
 function startVoiceRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) return alert("Trình duyệt không hỗ trợ AI giọng nói!");
@@ -129,25 +138,21 @@ function startVoiceRecognition() {
         
         const autoSwitch = document.getElementById('check-auto');
         
-        // Bật / Tắt tự động
         if (cmd.includes("tự động") || cmd.includes("a i")) {
             const isAutoOn = cmd.includes("bật") || cmd.includes("mở");
             autoSwitch.checked = isAutoOn;
             handleAutoMode();
         } 
-        // Tắt đèn thủ công
         else if (cmd.includes("tắt đèn") || cmd.includes("tắt hệ thống")) {
             autoSwitch.checked = false;
             handleAutoMode();
             db.ref('Control/do_sang').set(0);
         }
-        // Mở đèn (sáng 100%)
         else if (cmd.includes("bật đèn") || cmd.includes("mở đèn") || cmd.includes("sáng tối đa")) {
             autoSwitch.checked = false;
             handleAutoMode();
             db.ref('Control/do_sang').set(100);
         }
-        // Chỉnh độ sáng (Ví dụ "Độ sáng 50", "Chỉnh 75 phần trăm")
         else if (cmd.includes("sáng") || cmd.includes("mức") || cmd.includes("độ")) {
             if (autoSwitch.checked) {
                 alert("Hệ thống đang Tự động. Đã tắt để chỉnh độ sáng!");
@@ -167,9 +172,8 @@ function startVoiceRecognition() {
     rec.start();
 }
 
-// --- 6. FIREBASE SYNC (REALTIME) ---
+// --- 7. FIREBASE SYNC (REALTIME) ---
 function startSync() {
-    // Thông số từ Cảm biến
     db.ref('SmartNode_01/telemetry').on('value', snap => {
         const data = snap.val(); if(!data) return;
         
@@ -202,14 +206,12 @@ function startSync() {
         document.getElementById('val-lamp').innerText = data.light_info.lamp_percent + "%";
     });
 
-    // Đồng bộ nút gạt Tự động
     db.ref('Control/dieu_khien').on('value', snap => {
         const isAuto = snap.val();
         document.getElementById('check-auto').checked = isAuto;
         updateUIForAuto(isAuto);
     });
 
-    // Đồng bộ thanh kéo Độ sáng
     db.ref('Control/do_sang').on('value', snap => {
         const brightness = snap.val();
         document.getElementById('range-dosang').value = brightness;
@@ -217,7 +219,6 @@ function startSync() {
     });
 }
 
-// Lắng nghe thanh kéo thủ công
 document.getElementById('range-dosang').addEventListener('input', (e) => {
     const val = e.target.value;
     document.getElementById('txt-dosang').innerText = val;

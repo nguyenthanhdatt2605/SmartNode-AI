@@ -33,8 +33,18 @@
 
     <div id="app-container" style="display:none">
         
-        <aside class="sidebar">
+        <div class="mobile-header">
             <div class="logo">SMART<span>NODE</span></div>
+            <i class="fa-solid fa-bars menu-toggle" onclick="toggleSidebar()"></i>
+        </div>
+
+        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+        
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-top">
+                <div class="logo">SMART<span>NODE</span></div>
+                <i class="fa-solid fa-xmark close-sidebar" onclick="toggleSidebar()"></i>
+            </div>
             <nav id="main-nav">
                 <div class="nav-item active" data-tab="dashboard" onclick="showTab('dashboard')"><i class="fa-solid fa-house-signal"></i> Hệ thống</div>
                 <div class="nav-item" data-tab="live-data" onclick="showTab('live-data')"><i class="fa-solid fa-bolt"></i> Energy Details</div>
